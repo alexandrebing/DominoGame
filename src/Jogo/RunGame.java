@@ -12,15 +12,15 @@ import java.util.Scanner;
 //CRIA JOGADORES, PEÇAS DE DOMINÓ, MESA E FAZ AS DISTRIBUIÇÕES. AO FINAL, INICIA RODADA 1
 public class RunGame {
 
-    Player player1 = new Player();
-    Player player2 = new Player();
+    Jogo.Player player1 = new Jogo.Player();
+    Jogo.Player player2 = new Jogo.Player();
     Scanner in = new Scanner(System.in);
     boolean first = true;
     boolean endGameProposal = false;
     String endGameTxt = "";
 
-    Table t = new Table();
-    Piece p;
+    Jogo.Table t = new Jogo.Table();
+    Jogo.Piece p;
     int gamePieces = 3;
 
     public void RunGame() {
@@ -33,30 +33,30 @@ public class RunGame {
         String p2 = in.nextLine();
 
         //CRIACAO DAS ESTRUTURAS DO JOGO
-        ArrayList <Piece> pieces = new ArrayList<>();
+        ArrayList <Jogo.Piece> pieces = new ArrayList<>();
 
         //Criação das peças de dominó
         for (int i = 0; i <=gamePieces; i++){
             for(int j = i; j <= gamePieces; j++){
-                p = new Piece(i,j);
+                p = new Jogo.Piece(i,j);
                 pieces.add(p);
             }
         }
 
 
         Collections.shuffle(pieces);//EMBARALHAR PEÇAS
-        ArrayList<Piece> p1Hand = new ArrayList<>();
+        ArrayList<Jogo.Piece> p1Hand = new ArrayList<>();
         for (int i = 0; i< pieces.size()/2; i++){
             p1Hand.add(pieces.get(i));
         }
 
-        ArrayList<Piece> p2Hand = new ArrayList<>();
+        ArrayList<Jogo.Piece> p2Hand = new ArrayList<>();
         for (int i = pieces.size()/2; i< pieces.size(); i++){
             p2Hand.add(pieces.get(i));
         }
 
-        player1 = new Player(p1Hand, p1);
-        player2 = new Player(p2Hand, p2);
+        player1 = new Jogo.Player(p1Hand, p1);
+        player2 = new Jogo.Player(p2Hand, p2);
 
         firstPlay();
 
@@ -77,7 +77,7 @@ public class RunGame {
         if (CheckFirstPlayer(player1)){
             System.out.printf("Primeira rodada: o jogador %s começa pois recebeu a peça | %d | %d |\n", player1.Description(), gamePieces, gamePieces);
             int n = player1.getPieceIndex(gamePieces,gamePieces);
-            Piece p = player1.getPiece(n);
+            Jogo.Piece p = player1.getPiece(n);
             t.addFirst(p);
             player1.throwPiece(n);
             notFirstPlay(player2, player1);
@@ -85,7 +85,7 @@ public class RunGame {
         else{
             System.out.printf("Primeira rodada: o jogador %s começa pois recebeu a peça | %d | %d |\n", player2.Description(), gamePieces , gamePieces);
             int n = player2.getPieceIndex(gamePieces, gamePieces);
-            Piece p = player2.getPiece(n);
+            Jogo.Piece p = player2.getPiece(n);
             t.addFirst(p);
             player2.throwPiece(n);
             notFirstPlay(player1, player2);
@@ -93,9 +93,9 @@ public class RunGame {
     }
 
     //VERIFICA SE O JOGADOR TEM A MAIOR PEÇA DO JOGO
-    private boolean CheckFirstPlayer(Player player) {
-        ArrayList<Piece> hand = player.ReturnHand();
-        for (Piece p: hand
+    private boolean CheckFirstPlayer(Jogo.Player player) {
+        ArrayList<Jogo.Piece> hand = player.ReturnHand();
+        for (Jogo.Piece p: hand
              ) {
             if (p.sideA == gamePieces && p.sideB == gamePieces){
                 return true;
@@ -105,7 +105,7 @@ public class RunGame {
     }
 
     //DEMAIS RODADAS.
-    private void notFirstPlay(Player first, Player second){
+    private void notFirstPlay(Jogo.Player first, Jogo.Player second){
         while (true){
             Play(first);
             CheckEndGame();
@@ -116,7 +116,7 @@ public class RunGame {
     }
 
     //METODO UNICO PARA JOGADA (RECEBE UM PLAYER COMO PARAMETRO)
-    public void Play(Player currentPlayer){
+    public void Play(Jogo.Player currentPlayer){
         boolean choosingOpt = true;
         String ans;
         int countPieces = currentPlayer.CountPieces();
@@ -174,7 +174,7 @@ public class RunGame {
                             System.out.printf("A peça de número %d não pode ser jogada. Tente outra opção ou pule a rodada\n", optNum);
                             break;
                         }
-                        Piece currentPiece = currentPlayer.getPiece(pieceIndex);
+                        Jogo.Piece currentPiece = currentPlayer.getPiece(pieceIndex);
                         if(UsablePiece(currentPiece)){
                             makeMove(currentPiece);
                             currentPlayer.throwPiece(pieceIndex);
@@ -221,7 +221,7 @@ public class RunGame {
     }
 
     //METODO QUE VAI PEGAR A PEÇA E VER ONDE É POSSÍVEL JOGAR NA MESA
-    private void makeMove(Piece pieceN) {
+    private void makeMove(Jogo.Piece pieceN) {
         //PEÇA INSERÍVEL DOS 2 LADOS
         if((pieceN.sideA == t.ConsultLeft() || pieceN.sideB == t.ConsultLeft()) && (pieceN.sideA == t.ConsultRight() || pieceN.sideB == t.ConsultRight())){
             ChooseYourDestiny(pieceN);
@@ -240,7 +240,7 @@ public class RunGame {
     }
 
     //SE FOR POSSÍVEL JOGAR EM AMBAS AS EXTREMIDADES, TEMOS ESSAS OPÇÕES
-    private void ChooseYourDestiny(Piece pieceN) {//QUANDO POSSO INSERIR A PEÇA TANTO À ESQUERDA, QUANTO À DIREITA.
+    private void ChooseYourDestiny(Jogo.Piece pieceN) {//QUANDO POSSO INSERIR A PEÇA TANTO À ESQUERDA, QUANTO À DIREITA.
         System.out.println("M - Consultar Mesa | L - Inserir à esquerda | R - Inserir à direita");
         String option = in.next();
         option = option.toUpperCase();
@@ -263,7 +263,7 @@ public class RunGame {
     }
 
     //VERIFICA SE A JOGADA É VÁLIDA PARA EVITAR ERROS NAS OPÇÕES
-    private boolean jogadaInvalida(Player p, int n) { // EXEMPLO SE A MÃO TEM 3 PEÇAS E PEDE A PEÇA 4
+    private boolean jogadaInvalida(Jogo.Player p, int n) { // EXEMPLO SE A MÃO TEM 3 PEÇAS E PEDE A PEÇA 4
         int handSize = p.CountPieces();
 
         if (handSize < n){
@@ -287,17 +287,17 @@ public class RunGame {
     }
 
     //VERIFICA SE A PEÇA PODE SER INSERIDA NA MESA
-    public boolean UsablePiece(Piece p){
+    public boolean UsablePiece(Jogo.Piece p){
         if (checkGameLeft(p)) return true;
         else if (checkGameRight(p)) return true;
         return false;
     }
 
     //SE RETORNAR FALSO NÃO HÁ PEÇAS A INSERIR...
-    private boolean hasValidPiece(Player h){
-        ArrayList<Piece> currentHand = new ArrayList<>();
+    private boolean hasValidPiece(Jogo.Player h){
+        ArrayList<Jogo.Piece> currentHand = new ArrayList<>();
         currentHand = h.ReturnHand();
-        for (Piece p: currentHand
+        for (Jogo.Piece p: currentHand
              ) {
             if(checkOptions(p)) return true;
 
@@ -306,38 +306,38 @@ public class RunGame {
     }
 
     //ESTA REPETIDO
-    private boolean checkOptions(Piece p){
+    private boolean checkOptions(Jogo.Piece p){
         if (checkGameLeft(p)) return true;
         else if (checkGameRight(p)) return true;
         return false;
     }
 
     //VE SE PODE INSERIR À ESQUERDA DA MESA
-    private boolean  checkGameLeft(Piece p){
+    private boolean  checkGameLeft(Jogo.Piece p){
         if (p.sideA == t.ConsultLeft()) return true;
         else if (p.sideB == t.ConsultLeft()) return true;
         return false;
     }
 
     //IDEM PARA A DIREITA
-    private boolean checkGameRight(Piece p){
+    private boolean checkGameRight(Jogo.Piece p){
         if (p.sideA == t.ConsultRight()) return true;
         else if (p.sideB == t.ConsultRight()) return true;
         return false;
     }
 
     //METODO PARA ENCERRAR UM JOGO TRAVADO, QUANDO NÃO É POSSÍVEL INSERIR NOVAS PEÇAS
-    private void endGameByTie(Player player1, Player player2) {
+    private void endGameByTie(Jogo.Player player1, Jogo.Player player2) {
         int p1Points = 0;
 
-        ArrayList<Piece> hand = player1.ReturnHand();
-        for (Piece p: hand
+        ArrayList<Jogo.Piece> hand = player1.ReturnHand();
+        for (Jogo.Piece p: hand
              ) {
             p1Points = p1Points + p.sideA + p.sideB;
         }
         int p2Points = 0;
         hand = player2.ReturnHand();
-        for (Piece p: hand
+        for (Jogo.Piece p: hand
                 ) {
             p2Points = p2Points + p.sideA + p.sideB;
         }

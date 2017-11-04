@@ -4,13 +4,13 @@ import java.util.ArrayList;
 
 public class Table {
 
-    ArrayList<Piece> piecesInTable = new ArrayList<>();
+    ArrayList<Jogo.Piece> piecesInTable = new ArrayList<>();
 
     boolean emptyTable = true;
 
     public void ViewTable() {
         System.out.println("**************MESA DE JOGO*****************");
-        for (Piece p : piecesInTable
+        for (Jogo.Piece p : piecesInTable
                 ) {
             System.out.printf("| %d | %d | ;", p.sideA, p.sideB);
         }
@@ -18,16 +18,16 @@ public class Table {
         System.out.println("*******************************");
     }
 
-    public void addLeft(Piece p){
-        Piece o = piecesInTable.get(0);
+    public void addLeft(Jogo.Piece p){
+        Jogo.Piece o = piecesInTable.get(0);
         if (o.sideA != p.sideB){
             p.Flip();
         }
         piecesInTable.add(0, p);
     }
 
-    public void addRight(Piece p){
-        Piece o = piecesInTable.get(piecesInTable.size()-1);
+    public void addRight(Jogo.Piece p){
+        Jogo.Piece o = piecesInTable.get(piecesInTable.size()-1);
         if (o.sideB != p.sideA){
             p.Flip();
         }
@@ -35,16 +35,16 @@ public class Table {
     }
 
     public int ConsultLeft(){
-        Piece p = piecesInTable.get(0);
+        Jogo.Piece p = piecesInTable.get(0);
         return p.sideA;
     }
 
     public int ConsultRight(){
-        Piece p = piecesInTable.get(piecesInTable.size()-1);
+        Jogo.Piece p = piecesInTable.get(piecesInTable.size()-1);
         return p.sideB;
     }
 
-    public void addFirst(Piece p){
+    public void addFirst(Jogo.Piece p){
         piecesInTable.add(p);
     }
 

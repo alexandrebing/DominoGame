@@ -1,11 +1,10 @@
 package Jogo;
 
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class Player {
 
-    private ArrayList<Piece> myHand;
+    private ArrayList<Jogo.Piece> myHand;
     private String name;
 
     //CONSTRUÇÃO DEFAULT DO JOGADOR
@@ -14,19 +13,19 @@ public class Player {
     }
 
     //CONSTRUÇÃO JOGADOR MAIS SET DE PEÇAS
-    public Player(ArrayList<Piece> p1Hand, String n) {
+    public Player(ArrayList<Jogo.Piece> p1Hand, String n) {
         name = n;
         myHand = p1Hand;
     }
 
     //RETORNA A MÃO DO JOGADOR
-    public ArrayList<Piece> ReturnHand(){
+    public ArrayList<Jogo.Piece> ReturnHand(){
         return myHand;
 
     }
 
     //INSERE NOVAS PEÇAS NA MÃO DO JOGADOR, NAO USEI
-    public void insertPieces(ArrayList<Piece> pieces){
+    public void insertPieces(ArrayList<Jogo.Piece> pieces){
         myHand = pieces;
     }
 
@@ -45,7 +44,7 @@ public class Player {
     //MOSTRA MÃO DO JOGADOR
     public void showPieces() {
         int n = 1;
-        for (Piece p: myHand) {
+        for (Jogo.Piece p: myHand) {
             System.out.printf("%d - | %d | %d |\n", n, p.sideA, p.sideB );
             n++;
         }
@@ -57,7 +56,7 @@ public class Player {
     }
 
     //RETORNA A PEÇA EM DETERMINADO INDICE DO ARRAYLIST
-    public Piece getPiece(int pieceN) {
+    public Jogo.Piece getPiece(int pieceN) {
         return myHand.get(pieceN);
     }
 

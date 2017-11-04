@@ -1,14 +1,16 @@
 package Jogo;
 
 import java.io.FileNotFoundException;
+import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) throws FileNotFoundException {
 
-        RunGame game = new RunGame();
+        Jogo.RunGame game = new Jogo.RunGame();
         System.out.println("1 - Novo Jogo | 2 - Carregar Jogo");
-        String a = "1";
+        Scanner in = new Scanner(System.in);
+        String a = in.nextLine();
         switch (a) {
             case "1":
                 game.RunGame();
@@ -16,6 +18,9 @@ public class Main {
             case "2":
                 game.LoadGame();
                 break;
+                default:
+                    System.out.println("Opção inválida");
+                    break;
         }
 
 
