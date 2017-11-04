@@ -1,5 +1,7 @@
 package Jogo;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
@@ -364,4 +366,42 @@ public class RunGame {
         }
     }
 
+
+    //METODO PARA CARREGAR JOGO SALVO
+    public void LoadGame() throws FileNotFoundException {
+        System.out.printf("Escolha o arquivo que você quer carregar:\n * 1: Jogo Salvo 1\n * 2: Jogo Salvo 2\n");
+        int n = in.nextInt();
+        String a = "";
+        boolean choosing = true;
+        while(choosing){
+            switch (n) {
+                case 1:
+                    a = "jogo1.txt";
+                    choosing = false;
+                    break;
+                case 2:
+                    a = "jogo2.txt";
+                    choosing = false;
+                    break;
+                case 3:
+                    a = "jogo3.txt";
+                    break;
+                default:
+                    System.out.println("Opção inválida");
+                    break;
+            }
+        }
+        Scanner load = new Scanner(new File(a));
+
+        //PRIMEIRA LINHA DO ARQUIVO PARA CONSTRUIR A MESA
+        //SEGUNDA LINHA DO ARQUIVO PARA CONSTRUIR A MÃO DO PLAYER1
+        //TERCEIRA LINHA DO PARA CONSTRUIR A MÃO DO PLAYER2
+        // QUARTA LINHA DO ARQUIVO PARA DETERMINAR DE QUEM É A VEZ
+
+    }
+
+    //METODO PARA SALVAR JOGO
+    public void SaveGame(){
+
+    }
 }
