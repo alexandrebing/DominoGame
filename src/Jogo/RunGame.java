@@ -423,24 +423,20 @@ public class RunGame {
         listOfPieces = currentPlayer.ReturnHand();
         for (Piece p : listOfPieces
                 ) {
-            p1Hand = p.sideA + ";" + p.sideB + ";";
+            p1Hand = p1Hand + p.sideA + ";" + p.sideB + ";";
         }
         p1Hand = p1Hand + "\n";
 
         listOfPieces = nextPlayer.ReturnHand();
         for (Piece p : listOfPieces
                 ) {
-            p2Hand = p.sideA + ";" + p.sideB + ";";
+            p2Hand = p2Hand + p.sideA + ";" + p.sideB + ";";
         }
         p2Hand = p2Hand + "\n";
 
         res = gameTable + currentPlayerName + p1Hand + nextPlayerName + p2Hand;
 
         System.out.println(res);
-
-
-
-        //teste comit POSSO MUDAR NO ORIGINAL???
 
     }
 }
