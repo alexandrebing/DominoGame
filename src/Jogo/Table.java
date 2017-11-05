@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 public class Table {
 
-    ArrayList<Jogo.Piece> piecesInTable = new ArrayList<>();
+    private ArrayList<Jogo.Piece> piecesInTable = new ArrayList<>();
 
-    boolean emptyTable = true;
+    private boolean emptyTable = true;
 
     public void ViewTable() {
         System.out.println("**************MESA DE JOGO*****************");
@@ -53,5 +53,12 @@ public class Table {
     }
 
 
+    public int countPieces() {
+        return piecesInTable.size();
+    }
+
+    public ArrayList<Piece> getPiecesInTable(){
+        return piecesInTable;
+    }
 }
 

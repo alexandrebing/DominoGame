@@ -59,17 +59,6 @@ public class RunGame {
         player2 = new Jogo.Player(p2Hand, p2);
 
         firstPlay();
-
-        while(true){
-            Play(player1);
-            //Player1Play();
-            CheckEndGame();
-            Play(player2);
-            //Player2Play();
-            CheckEndGame();
-        }
-
-
     }
 
     //DEFINE QUEM JOGA PRIMEIRO E A RODADA.
@@ -107,16 +96,16 @@ public class RunGame {
     //DEMAIS RODADAS.
     private void notFirstPlay(Jogo.Player first, Jogo.Player second){
         while (true){
-            Play(first);
+            Play(first, second);
             CheckEndGame();
-            Play(second);
+            Play(second, first);
             CheckEndGame();
         }
 
     }
 
     //METODO UNICO PARA JOGADA (RECEBE UM PLAYER COMO PARAMETRO)
-    public void Play(Jogo.Player currentPlayer){
+    public void Play(Player currentPlayer, Player notMyTurn){ //Coloquei o segundo jogador também para fins de Save
         boolean choosingOpt = true;
         String ans;
         int countPieces = currentPlayer.CountPieces();
@@ -143,7 +132,7 @@ public class RunGame {
         if (hasValidPiece(currentPlayer)){//SE PODE JOGAR ALGUMA PEÇA, ESSAS SÃO AS OPÇÕES
             while (choosingOpt){
                 System.out.println("Qual a sua jogada?");
-                System.out.printf("1-%d : Jogar peça | M : Mostrar Mesa| P : Pular\n", countPieces);
+                System.out.printf("1-%d : Jogar peça | | S: Salvar Jogo | M : Mostrar Mesa| P : Pular | Q : Encerrar\n", countPieces);
                 ans = in.next();
                 ans = ans.toUpperCase();
                 switch (ans){
@@ -152,6 +141,10 @@ public class RunGame {
                     case "P": {
                         System.out.printf("%s pulou sua rodada!\n", currentPlayer.Description());
                         choosingOpt = false;
+                        break;
+                    }
+                    case "S":{
+                        SaveGame(currentPlayer,notMyTurn, "1");
                         break;
                     }
                     case "1":
@@ -197,18 +190,22 @@ public class RunGame {
         else{//NÃO HÁ PEÇAS A JOGAR -> PULA OU PROPOE FIM DE JOGO
             while (choosingOpt){
                 System.out.println("Aparentemente, você não tem jogadas válidas... Você pode pular a sua rodada, ou propor o fim do jogo. Propor o fim do jogo está sujeito à aceitação do pedido pelo outro jogador, e pulará a sua rodada.");
-                System.out.println("M : Mostrar Mesa| P : Pular | Q: Propor o fim do jogo");
+                System.out.println("M : Mostrar Mesa | S : Salvar Jogo | P : Pular | F: Propor o fim do jogo | Q: Encerrar");
                 ans = in.next();
                 ans = ans.toUpperCase();
                 switch (ans){
                     case "M":
                         t.ViewTable();
                         break;
+                    case "S":{
+                        SaveGame(currentPlayer,notMyTurn, "1");
+                        break;
+                    }
                     case "P":
                         System.out.printf("%s pulou sua rodada!\n", currentPlayer.Description());
                         choosingOpt = false;
                         break;
-                    case "Q":
+                    case "F":
                         endGameTxt = "O jogador " + currentPlayer.Description() + " Propôs o fim do jogo..." ;
                         endGameProposal = true;
                         choosingOpt =  false;
@@ -401,7 +398,48 @@ public class RunGame {
     }
 
     //METODO PARA SALVAR JOGO
-    public void SaveGame(){
+    public void SaveGame(Player currentPlayer, Player nextPlayer, String fileNum){
+
+        ArrayList<Piece> listOfPieces;
+        //int gameTable [] = new int [t.countPieces()];
+        String gameTable = "";
+        String currentPlayerName = currentPlayer.Description() + "\n";
+        //int p1Hand [] = new int [currentPlayer.CountPieces()];
+        String p1Hand = "";
+        String nextPlayerName = nextPlayer.Description()+"\n";
+        String p2Hand = "";
+        //int p2Hand [] = new int [nextPlayer.CountPieces()];
+        String res;
+
+        listOfPieces = t.getPiecesInTable();
+        //PEGAR DADOS DA MESA
+        for (Piece p : listOfPieces
+             ) {
+            gameTable = gameTable + p.sideA + ";" + p.sideB + ";";
+        }
+        gameTable = gameTable + "\n";
+
+        //Pegando mao do jogador que salvou
+        listOfPieces = currentPlayer.ReturnHand();
+        for (Piece p : listOfPieces
+                ) {
+            p1Hand = p.sideA + ";" + p.sideB + ";";
+        }
+        p1Hand = p1Hand + "\n";
+
+        listOfPieces = nextPlayer.ReturnHand();
+        for (Piece p : listOfPieces
+                ) {
+            p2Hand = p.sideA + ";" + p.sideB + ";";
+        }
+        p2Hand = p2Hand + "\n";
+
+        res = gameTable + currentPlayerName + p1Hand + nextPlayerName + p2Hand;
+
+        System.out.println(res);
+
+
+
         //teste comit POSSO MUDAR NO ORIGINAL???
 
     }
