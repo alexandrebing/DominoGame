@@ -4,12 +4,20 @@ import java.util.ArrayList;
 
 public class Player {
 
-    private ArrayList<Jogo.Piece> myHand;
+    private ArrayList<Jogo.Piece> myHand = new ArrayList<>();
     private String name;
 
     //CONSTRUÇÃO DEFAULT DO JOGADOR
     public Player(){
 
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void addPiece(Piece p) {
+        myHand.add(p);
     }
 
     //CONSTRUÇÃO JOGADOR MAIS SET DE PEÇAS
@@ -22,11 +30,6 @@ public class Player {
     public ArrayList<Jogo.Piece> ReturnHand(){
         return myHand;
 
-    }
-
-    //INSERE NOVAS PEÇAS NA MÃO DO JOGADOR, NAO USEI
-    public void insertPieces(ArrayList<Jogo.Piece> pieces){
-        myHand = pieces;
     }
 
     //VERIFICA SE A MÃO DO JOGADOR ESTÁ VAZIA

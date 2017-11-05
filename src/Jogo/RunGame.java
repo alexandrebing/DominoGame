@@ -2,6 +2,7 @@ package Jogo;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
@@ -23,7 +24,7 @@ public class RunGame {
     Jogo.Piece p;
     int gamePieces = 3;
 
-    public void RunGame() {
+    public void RunGame() throws FileNotFoundException {
 
         System.out.println("Novo jogo de dominó!");
 
@@ -62,12 +63,12 @@ public class RunGame {
     }
 
     //DEFINE QUEM JOGA PRIMEIRO E A RODADA.
-    private void firstPlay() {
+    private void firstPlay() throws FileNotFoundException {
         if (CheckFirstPlayer(player1)){
             System.out.printf("Primeira rodada: o jogador %s começa pois recebeu a peça | %d | %d |\n", player1.Description(), gamePieces, gamePieces);
             int n = player1.getPieceIndex(gamePieces,gamePieces);
             Jogo.Piece p = player1.getPiece(n);
-            t.addFirst(p);
+            t.add(p);
             player1.throwPiece(n);
             notFirstPlay(player2, player1);
         }
@@ -75,7 +76,7 @@ public class RunGame {
             System.out.printf("Primeira rodada: o jogador %s começa pois recebeu a peça | %d | %d |\n", player2.Description(), gamePieces , gamePieces);
             int n = player2.getPieceIndex(gamePieces, gamePieces);
             Jogo.Piece p = player2.getPiece(n);
-            t.addFirst(p);
+            t.add(p);
             player2.throwPiece(n);
             notFirstPlay(player1, player2);
         }
@@ -94,7 +95,7 @@ public class RunGame {
     }
 
     //DEMAIS RODADAS.
-    private void notFirstPlay(Jogo.Player first, Jogo.Player second){
+    private void notFirstPlay(Jogo.Player first, Jogo.Player second) throws FileNotFoundException {
         while (true){
             Play(first, second);
             CheckEndGame();
@@ -105,7 +106,7 @@ public class RunGame {
     }
 
     //METODO UNICO PARA JOGADA (RECEBE UM PLAYER COMO PARAMETRO)
-    public void Play(Player currentPlayer, Player notMyTurn){ //Coloquei o segundo jogador também para fins de Save
+    public void Play(Player currentPlayer, Player notMyTurn) throws FileNotFoundException { //Coloquei o segundo jogador também para fins de Save
         boolean choosingOpt = true;
         String ans;
         int countPieces = currentPlayer.CountPieces();
@@ -368,27 +369,67 @@ public class RunGame {
     public void LoadGame() throws FileNotFoundException {
         System.out.printf("Escolha o arquivo que você quer carregar:\n * 1: Jogo Salvo 1\n * 2: Jogo Salvo 2\n");
         int n = in.nextInt();
-        String a = "";
+        String gameSave = "";
+        String section [];
+        Piece p;
         boolean choosing = true;
         while(choosing){
             switch (n) {
                 case 1:
-                    a = "jogo1.txt";
+                    gameSave = "save1.txt";
                     choosing = false;
                     break;
                 case 2:
-                    a = "jogo2.txt";
+                    gameSave = "save2.txt";
                     choosing = false;
                     break;
                 case 3:
-                    a = "jogo3.txt";
+                    gameSave = "save3.txt";
                     break;
                 default:
                     System.out.println("Opção inválida");
                     break;
             }
         }
-        Scanner load = new Scanner(new File(a));
+        Scanner load = new Scanner(new File(gameSave));
+
+        String line [] = new String [5];
+        int i = 0;
+
+        while (load.hasNextLine()){
+            line [i] = load.nextLine();
+            i ++;
+        }
+
+        section = line[0].split(";");
+        for (int j = 0; j < section.length; j = j+2){
+            int pa = Integer.parseInt(section[j]);
+            int pb = Integer.parseInt(section[j+1]);
+            p = new Piece(pa,pb);
+            t.add(p);
+        }
+
+        player1.setName(line[1]);
+
+        section = line[2].split(";");
+        for (int j = 0; j < section.length; j = j+2){
+            int pa = Integer.parseInt(section[j]);
+            int pb = Integer.parseInt(section[j+1]);
+            p = new Piece(pa,pb);
+            player1.addPiece(p);
+        }
+
+        player2.setName(line[3]);
+
+        section = line[4].split(";");
+        for (int j = 0; j < section.length; j = j+2){
+            int pa = Integer.parseInt(section[j]);
+            int pb = Integer.parseInt(section[j+1]);
+            p = new Piece(pa,pb);
+            player2.addPiece(p);
+        }
+
+        notFirstPlay(player1,player2);
 
         //PRIMEIRA LINHA DO ARQUIVO PARA CONSTRUIR A MESA
         //SEGUNDA LINHA DO ARQUIVO PARA CONSTRUIR A MÃO DO PLAYER1
@@ -398,7 +439,7 @@ public class RunGame {
     }
 
     //METODO PARA SALVAR JOGO
-    public void SaveGame(Player currentPlayer, Player nextPlayer, String fileNum){
+    public void SaveGame(Player currentPlayer, Player nextPlayer, String fileNum) throws FileNotFoundException {
 
         ArrayList<Piece> listOfPieces;
         //int gameTable [] = new int [t.countPieces()];
@@ -432,11 +473,20 @@ public class RunGame {
                 ) {
             p2Hand = p2Hand + p.sideA + ";" + p.sideB + ";";
         }
-        p2Hand = p2Hand + "\n";
+        // aqui não insere nova linha
 
         res = gameTable + currentPlayerName + p1Hand + nextPlayerName + p2Hand;
 
-        System.out.println(res);
+        //System.out.println(res);
+
+        //Salva o arquivo num arquivo txt
+        String file = "save" + fileNum + ".txt";
+
+        PrintWriter out = new PrintWriter(file);
+
+        out.println(res);
+
+        out.close();
 
     }
 }

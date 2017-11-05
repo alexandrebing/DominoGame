@@ -6,8 +6,6 @@ public class Table {
 
     private ArrayList<Jogo.Piece> piecesInTable = new ArrayList<>();
 
-    private boolean emptyTable = true;
-
     public void ViewTable() {
         System.out.println("**************MESA DE JOGO*****************");
         for (Jogo.Piece p : piecesInTable
@@ -44,17 +42,8 @@ public class Table {
         return p.sideB;
     }
 
-    public void addFirst(Jogo.Piece p){
+    public void add(Piece p){
         piecesInTable.add(p);
-    }
-
-    public boolean EmptyTable(){
-        return piecesInTable.isEmpty();
-    }
-
-
-    public int countPieces() {
-        return piecesInTable.size();
     }
 
     public ArrayList<Piece> getPiecesInTable(){
