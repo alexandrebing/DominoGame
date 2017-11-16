@@ -7,22 +7,23 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
 
-//FALTA SALVAR E CARREGAR JOGO
-
-
+//FALTA CRIAR PONTUAÇÃO E AUMENTAR A COMPLEXIDADE DO JOGO, PARA QUE SE REPITA ATÉ QUE ATINJA UMA PONTUAÇÃO X.
 //CRIA JOGADORES, PEÇAS DE DOMINÓ, MESA E FAZ AS DISTRIBUIÇÕES. AO FINAL, INICIA RODADA 1
 public class RunGame {
 
-    Jogo.Player player1 = new Jogo.Player();
-    Jogo.Player player2 = new Jogo.Player();
+    Player player1 = new Player();
+    Player player2 = new Player();
     Scanner in = new Scanner(System.in);
     boolean first = true;
-    boolean endGameProposal = false;
+    boolean endTurnProposal = false;
     String endGameTxt = "";
+    ArrayList <Piece> pieces = new ArrayList<>();
+    ArrayList<Piece> stdPieces = new ArrayList<>();
 
     Jogo.Table t = new Jogo.Table();
     Jogo.Piece p;
     int gamePieces = 3;
+    int totalPoints = 20;
 
     public void RunGame() throws FileNotFoundException {
 
@@ -33,33 +34,50 @@ public class RunGame {
         System.out.println("Digite o nome do Jogador 2");
         String p2 = in.nextLine();
 
-        //CRIACAO DAS ESTRUTURAS DO JOGO
-        ArrayList <Jogo.Piece> pieces = new ArrayList<>();
-
         //Criação das peças de dominó
-        for (int i = 0; i <=gamePieces; i++){
-            for(int j = i; j <= gamePieces; j++){
+        pieces = MakePieces(gamePieces);
+
+        player1.setName(p1);
+        player2.setName(p2);
+
+        NewTurn();
+    }
+
+    private ArrayList<Piece> MakePieces(int n){
+        ArrayList<Piece> thisSet = new ArrayList<>();
+        for (int i = 0; i <=n; i++){
+            for(int j = i; j <= n; j++){
                 p = new Jogo.Piece(i,j);
-                pieces.add(p);
+                thisSet.add(p);
             }
         }
+        return thisSet;
+    }
 
+    //METODO PARA INICIALIZAR RODADA
+    private void NewTurn() throws FileNotFoundException {
+        if (player1.getPoints() >= totalPoints || player2.getPoints() >= totalPoints ) {
+            endGame();
+        }
 
+        t.resetTable();
+        pieces = MakePieces(gamePieces);
         Collections.shuffle(pieces);//EMBARALHAR PEÇAS
-        ArrayList<Jogo.Piece> p1Hand = new ArrayList<>();
-        for (int i = 0; i< pieces.size()/2; i++){
+        ArrayList<Piece> p1Hand = new ArrayList<>();
+        for (int i = 0; i < pieces.size() / 2; i++) {
             p1Hand.add(pieces.get(i));
         }
 
-        ArrayList<Jogo.Piece> p2Hand = new ArrayList<>();
-        for (int i = pieces.size()/2; i< pieces.size(); i++){
+        ArrayList<Piece> p2Hand = new ArrayList<>();
+        for (int i = pieces.size() / 2; i < pieces.size(); i++) {
             p2Hand.add(pieces.get(i));
         }
 
-        player1 = new Jogo.Player(p1Hand, p1);
-        player2 = new Jogo.Player(p2Hand, p2);
+        player1.NewHand(p1Hand);
+        player2.NewHand(p2Hand);
 
         firstPlay();
+
     }
 
     //DEFINE QUEM JOGA PRIMEIRO E A RODADA.
@@ -83,9 +101,9 @@ public class RunGame {
     }
 
     //VERIFICA SE O JOGADOR TEM A MAIOR PEÇA DO JOGO
-    private boolean CheckFirstPlayer(Jogo.Player player) {
-        ArrayList<Jogo.Piece> hand = player.ReturnHand();
-        for (Jogo.Piece p: hand
+    private boolean CheckFirstPlayer(Player player) {
+        ArrayList<Piece> hand = player.ReturnHand();
+        for (Piece p: hand
              ) {
             if (p.sideA == gamePieces && p.sideB == gamePieces){
                 return true;
@@ -95,34 +113,34 @@ public class RunGame {
     }
 
     //DEMAIS RODADAS.
-    private void notFirstPlay(Jogo.Player first, Jogo.Player second) throws FileNotFoundException {
+    private void notFirstPlay(Player first, Player second) throws FileNotFoundException {
         while (true){
             Play(first, second);
-            CheckEndGame();
+            CheckEndTurn();
             Play(second, first);
-            CheckEndGame();
+            CheckEndTurn();
         }
 
     }
 
-    //METODO UNICO PARA JOGADA (RECEBE UM PLAYER COMO PARAMETRO)
+    //METODO UNICO PARA JOGADA (RECEBE UM PLAYER COMO PARAMETRO) TÁ GRANDE, DIVIDIR?
     public void Play(Player currentPlayer, Player notMyTurn) throws FileNotFoundException { //Coloquei o segundo jogador também para fins de Save
         boolean choosingOpt = true;
         String ans;
         int countPieces = currentPlayer.CountPieces();
-        if(endGameProposal){
+        if(endTurnProposal){
             endGameTxt = endGameTxt + currentPlayer.Description() + ", você aceita?";
             System.out.println(endGameTxt);
             System.out.println("S: Sim | Qualquer outra tecla: Não");
             ans = in.next();
             ans = ans.toUpperCase();
             if(ans.equals("S")){
-                endGameByTie(player1, player2);
-                endGameProposal = false;
+                endTurnProposal = false;
+                endTurnByTie(currentPlayer, notMyTurn);
             }
             else{
+                endTurnProposal = false;
                 System.out.printf("%s rejeitou o fim do jogo.", currentPlayer.Description());
-                endGameProposal = false;
             }
 
         }
@@ -133,11 +151,18 @@ public class RunGame {
         if (hasValidPiece(currentPlayer)){//SE PODE JOGAR ALGUMA PEÇA, ESSAS SÃO AS OPÇÕES
             while (choosingOpt){
                 System.out.println("Qual a sua jogada?");
-                System.out.printf("1-%d : Jogar peça | | S: Salvar Jogo | M : Mostrar Mesa| P : Pular | Q : Encerrar\n", countPieces);
+                System.out.printf("1-%d : Jogar peça | Z: Mostrar pontuação | S: Salvar Jogo | M : Mostrar Mesa| P : Pular | Q : Encerrar\n", countPieces);
                 ans = in.next();
                 ans = ans.toUpperCase();
                 switch (ans){
-                    case "M": t.ViewTable();
+                    case "Q":
+                        System.exit(0);
+                    case "Z":
+                        System.out.printf("Pontuação:\n %s tem %d pontos\n %s tem %d pontos\n",currentPlayer.Description(), currentPlayer.getPoints(), notMyTurn.Description(), notMyTurn.getPoints());
+                        break;
+                    case "M":  System.out.printf("É A VEZ DE %s!\n", currentPlayer.Description());
+                        t.ViewTable();
+                        currentPlayer.showPieces();
                         break;
                     case "P": {
                         System.out.printf("%s pulou sua rodada!\n", currentPlayer.Description());
@@ -145,7 +170,22 @@ public class RunGame {
                         break;
                     }
                     case "S":{
-                        SaveGame(currentPlayer,notMyTurn, "1");
+                        System.out.println("Escolha o espaço de salvamento:\n 1: Salvar no espaço 1\n 2: Salvar no espaço 2\n 3: Salvar no espaço 3");
+                        String inRes = in.next();
+                        switch (inRes){
+                            case "1":
+                                SaveGame(currentPlayer,notMyTurn, inRes);
+                                break;
+                            case "2":
+                                SaveGame(currentPlayer,notMyTurn, inRes);
+                                break;
+                            case "3":
+                                SaveGame(currentPlayer,notMyTurn, inRes);
+                                break;
+                            default:
+                                System.out.println("Opção Inválida!");
+                                break;
+                        }
                         break;
                     }
                     case "1":
@@ -195,11 +235,32 @@ public class RunGame {
                 ans = in.next();
                 ans = ans.toUpperCase();
                 switch (ans){
+                    case "Q":
+                        System.exit(0);
+                    case "Z":  System.out.printf("Pontuação:\n %s tem %d pontos\n %s tem %d pontos\n",currentPlayer.Description(), currentPlayer.getPoints(), notMyTurn.Description(), notMyTurn.getPoints());
+                        break;
                     case "M":
+                        System.out.printf("É A VEZ DE %s!\n", currentPlayer.Description());
                         t.ViewTable();
+                        currentPlayer.showPieces();
                         break;
                     case "S":{
-                        SaveGame(currentPlayer,notMyTurn, "1");
+                        System.out.println("Escolha o espaço de salvamento:\n 1: Salvar no espaço 1\n 2: Salvar no espaço 2\n 3: Salvar no espaço 3");
+                        String inRes = in.next();
+                        switch (inRes){
+                            case "1":
+                                SaveGame(currentPlayer,notMyTurn, inRes);
+                                break;
+                            case "2":
+                                SaveGame(currentPlayer,notMyTurn, inRes);
+                                break;
+                            case "3":
+                                SaveGame(currentPlayer,notMyTurn, inRes);
+                                break;
+                            default:
+                                System.out.println("Opção Inválida!");
+                                break;
+                        }
                         break;
                     }
                     case "P":
@@ -208,7 +269,7 @@ public class RunGame {
                         break;
                     case "F":
                         endGameTxt = "O jogador " + currentPlayer.Description() + " Propôs o fim do jogo..." ;
-                        endGameProposal = true;
+                        endTurnProposal = true;
                         choosingOpt =  false;
                         break;
                 }
@@ -270,29 +331,48 @@ public class RunGame {
         return false;
     }
 
-    //VERIFICA SE O JOGO ACABOU APÓS CADA PEÇA JOGADA POR UM JOGADOR
-    private void CheckEndGame() {
+    //VERIFICA SE A RODADA ACABOU APÓS CADA PEÇA JOGADA POR UM JOGADOR
+    private void CheckEndTurn() throws FileNotFoundException {
+        //JOGADOR 1 FICOU SEM PEÇAS
         if (player1.emptyHand()){
-            System.out.printf("%s venceu! Parabéns %s!!!\n", player1.Description(), player1.Description());
+            int p = checkLooserPoints(player2);
+            System.out.printf("%s venceu a rodada! %s acumulou %d pontos...\n", player1.Description(), player2.Description(), p);
+            player2.UpdatePoints(p);
             t.ViewTable();
-            System.exit(0);
+            NewTurn();
+            //System.exit(0);
         }
+        //JOGADOR 2 FICOU SEM PEÇAS
         if(player2.emptyHand()){
-            System.out.printf("%s venceu! Parabéns %s!!!\n",player2.Description(), player2.Description());
+            int p = checkLooserPoints(player1);
+            System.out.printf("%s venceu a rodada! %s acumulou %d pontos...\n", player2.Description(), player1.Description(), p);
+            player1.UpdatePoints(p);
             t.ViewTable();
-            System.exit(0);
+            NewTurn();
+            //System.exit(0);
         }
     }
 
+    //CONTA QUANTOS PONTOS O PERDEDOR SOMOU
+    private int checkLooserPoints(Player player) {
+        int points = 0;
+        ArrayList<Piece> hand = player.ReturnHand();
+        for (Piece p: hand
+                ) {
+            points = points + p.sideA + p.sideB;
+        }
+        return points;
+    }
+
     //VERIFICA SE A PEÇA PODE SER INSERIDA NA MESA
-    public boolean UsablePiece(Jogo.Piece p){
+    public boolean UsablePiece(Piece p){
         if (checkGameLeft(p)) return true;
         else if (checkGameRight(p)) return true;
         return false;
     }
 
     //SE RETORNAR FALSO NÃO HÁ PEÇAS A INSERIR...
-    private boolean hasValidPiece(Jogo.Player h){
+    private boolean hasValidPiece(Player h){
         ArrayList<Jogo.Piece> currentHand = new ArrayList<>();
         currentHand = h.ReturnHand();
         for (Jogo.Piece p: currentHand
@@ -304,32 +384,32 @@ public class RunGame {
     }
 
     //ESTA REPETIDO
-    private boolean checkOptions(Jogo.Piece p){
+    private boolean checkOptions(Piece p){
         if (checkGameLeft(p)) return true;
         else if (checkGameRight(p)) return true;
         return false;
     }
 
     //VE SE PODE INSERIR À ESQUERDA DA MESA
-    private boolean  checkGameLeft(Jogo.Piece p){
+    private boolean  checkGameLeft(Piece p){
         if (p.sideA == t.ConsultLeft()) return true;
         else if (p.sideB == t.ConsultLeft()) return true;
         return false;
     }
 
     //IDEM PARA A DIREITA
-    private boolean checkGameRight(Jogo.Piece p){
+    private boolean checkGameRight(Piece p){
         if (p.sideA == t.ConsultRight()) return true;
         else if (p.sideB == t.ConsultRight()) return true;
         return false;
     }
 
     //METODO PARA ENCERRAR UM JOGO TRAVADO, QUANDO NÃO É POSSÍVEL INSERIR NOVAS PEÇAS
-    private void endGameByTie(Jogo.Player player1, Jogo.Player player2) {
+    private void endTurnByTie(Player player1, Player player2) throws FileNotFoundException {
         int p1Points = 0;
 
-        ArrayList<Jogo.Piece> hand = player1.ReturnHand();
-        for (Jogo.Piece p: hand
+        ArrayList<Piece> hand = player1.ReturnHand();
+        for (Piece p: hand
              ) {
             p1Points = p1Points + p.sideA + p.sideB;
         }
@@ -340,34 +420,41 @@ public class RunGame {
             p2Points = p2Points + p.sideA + p.sideB;
         }
 
+        player1.UpdatePoints(p1Points);
+        player2.UpdatePoints(p2Points);
+
         if (p1Points == p2Points){
             System.out.printf("%s e %s empataram com %d pontos! Impressionante!\n", player1.Description(), player2.Description(), p1Points);
+            NewTurn();
         }
 
         if(p1Points < p2Points){
-            System.out.printf("%s venceu com %d pontos contra %d pontos de %s.\n",player1.Description(), p1Points, p2Points, player2.Description());
+            System.out.printf("%s venceu a rodada com %d pontos contra %d pontos de %s.\n",player1.Description(), p1Points, p2Points, player2.Description());
             t.ViewTable();
             System.out.printf("Parabéns %s!!!\n", player1.Description());
-            System.exit(0);
+            NewTurn();
+            //System.exit(0);
 
         }
 
         if (p2Points < p1Points){
-            System.out.printf("%s venceu com %d pontos contra %d pontos de %s.\n",player2.Description(), p2Points, p1Points, player1.Description());
+            System.out.printf("%s venceu a rodada com %d pontos contra %d pontos de %s.\n",player2.Description(), p2Points, p1Points, player1.Description());
             t.ViewTable();
             System.out.printf("Parabéns %s!!!\n", player2.Description());
-            System.exit(0);
+            NewTurn();
+            //System.exit(0);
         }
 
         else {
             System.out.println("Deu merda...");
+            System.exit(0);
         }
     }
 
 
     //METODO PARA CARREGAR JOGO SALVO
     public void LoadGame() throws FileNotFoundException {
-        System.out.printf("Escolha o arquivo que você quer carregar:\n * 1: Jogo Salvo 1\n * 2: Jogo Salvo 2\n");
+        System.out.printf("Escolha o arquivo que você quer carregar:\n * 1: Jogo Salvo 1\n * 2: Jogo Salvo 2\n * 3: Jogo Salvo 3\n");
         int n = in.nextInt();
         String gameSave = "";
         String section [];
@@ -385,6 +472,7 @@ public class RunGame {
                     break;
                 case 3:
                     gameSave = "save3.txt";
+                    choosing = false;
                     break;
                 default:
                     System.out.println("Opção inválida");
@@ -489,4 +577,30 @@ public class RunGame {
         out.close();
 
     }
+
+    //METODO QUE ENCERRA O JOGO
+    private void endGame() {
+        System.out.println("Termina o jogo aqui em Porto Alegre! (voz do Galvão Bueno)");
+        int p1Points = player1.getPoints();
+        int p2Points = player2.getPoints();
+        if (p1Points == p2Points){
+            System.out.printf("%s e %s empataram com %d pontos! Impressionante!\n", player1.Description(), player2.Description(), p1Points);
+        }
+
+        if(p1Points < p2Points){
+            System.out.printf("%s venceu o jogo com %d pontos contra %d pontos de %s. Parabéns\n",player1.Description(), p1Points, p2Points, player2.Description());
+            t.ViewTable();
+            System.out.printf("Parabéns %s!!!\n", player1.Description());
+            //System.exit(0);
+
+        }
+
+        if (p2Points < p1Points){
+            System.out.printf("%s venceu o jogo com %d pontos contra %d pontos de %s. Parabéns!\n",player2.Description(), p2Points, p1Points, player1.Description());
+            t.ViewTable();
+            System.out.printf("Parabéns %s!!!\n", player2.Description());
+        }
+        System.exit(0);
+    }
+
 }

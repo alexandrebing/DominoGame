@@ -6,6 +6,7 @@ public class Player {
 
     private ArrayList<Jogo.Piece> myHand = new ArrayList<>();
     private String name;
+    private int points;
 
     //CONSTRUÇÃO DEFAULT DO JOGADOR
     public Player(){
@@ -24,6 +25,16 @@ public class Player {
     public Player(ArrayList<Jogo.Piece> p1Hand, String n) {
         name = n;
         myHand = p1Hand;
+        points = 0;
+    }
+
+    //METODOS PARA GUARDAR E VERIFICAR PONTUAÇÃO
+    public void UpdatePoints(int points) {
+        this.points = this.points + points;
+    }
+
+    public int getPoints() {
+        return points;
     }
 
     //RETORNA A MÃO DO JOGADOR
@@ -47,6 +58,7 @@ public class Player {
     //MOSTRA MÃO DO JOGADOR
     public void showPieces() {
         int n = 1;
+        System.out.println("*****MINHA MÃO*****");
         for (Jogo.Piece p: myHand) {
             System.out.printf("%d - | %d | %d |\n", n, p.sideA, p.sideB );
             n++;
@@ -78,5 +90,8 @@ public class Player {
         return 0;
     }
 
+    public void NewHand(ArrayList<Piece> hand) {
+        myHand = hand;
+    }
 }
 

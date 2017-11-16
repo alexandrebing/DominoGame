@@ -49,5 +49,9 @@ public class Table {
     public ArrayList<Piece> getPiecesInTable(){
         return piecesInTable;
     }
+
+    public void resetTable() {
+        piecesInTable = new ArrayList<>();
+    }
 }
 
