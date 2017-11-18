@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
 
-//FALTA CRIAR PONTUAÇÃO E AUMENTAR A COMPLEXIDADE DO JOGO, PARA QUE SE REPITA ATÉ QUE ATINJA UMA PONTUAÇÃO X.
 //CRIA JOGADORES, PEÇAS DE DOMINÓ, MESA E FAZ AS DISTRIBUIÇÕES. AO FINAL, INICIA RODADA 1
 public class RunGame {
 
@@ -481,7 +480,7 @@ public class RunGame {
         }
         Scanner load = new Scanner(new File(gameSave));
 
-        String line [] = new String [5];
+        String line [] = new String [7];
         int i = 0;
 
         while (load.hasNextLine()){
@@ -507,15 +506,19 @@ public class RunGame {
             player1.addPiece(p);
         }
 
-        player2.setName(line[3]);
+        player1.UpdatePoints(Integer.parseInt(line[3]));
 
-        section = line[4].split(";");
+        player2.setName(line[4]);
+
+        section = line[5].split(";");
         for (int j = 0; j < section.length; j = j+2){
             int pa = Integer.parseInt(section[j]);
             int pb = Integer.parseInt(section[j+1]);
             p = new Piece(pa,pb);
             player2.addPiece(p);
         }
+
+        player2.UpdatePoints(Integer.parseInt(line[6]));
 
         notFirstPlay(player1,player2);
 
@@ -538,6 +541,9 @@ public class RunGame {
         String nextPlayerName = nextPlayer.Description()+"\n";
         String p2Hand = "";
         //int p2Hand [] = new int [nextPlayer.CountPieces()];
+        String p1Points = Integer.toString(currentPlayer.getPoints()) + "\n";
+        String p2Points = Integer.toString(nextPlayer.getPoints());
+
         String res;
 
         listOfPieces = t.getPiecesInTable();
@@ -561,9 +567,10 @@ public class RunGame {
                 ) {
             p2Hand = p2Hand + p.sideA + ";" + p.sideB + ";";
         }
+        p2Hand = p2Hand + "\n";
         // aqui não insere nova linha
 
-        res = gameTable + currentPlayerName + p1Hand + nextPlayerName + p2Hand;
+        res = gameTable + currentPlayerName + p1Hand + p1Points + nextPlayerName + p2Hand + p2Points;
 
         //System.out.println(res);
 
