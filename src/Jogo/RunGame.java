@@ -15,8 +15,8 @@ public class RunGame {
     ArrayList <Piece> pieces = new ArrayList<>();
     ArrayList<Player> player = new ArrayList<>();
 
-    Jogo.Table t = new Jogo.Table();
-    Jogo.Piece p;
+    Table t = new Table();
+    Piece p;
     int gamePieces;
     int totalPoints = 20;
     int jump = 0;
@@ -67,7 +67,7 @@ public class RunGame {
         ArrayList<Piece> thisSet = new ArrayList<>();
         for (int i = 0; i <=n; i++){
             for(int j = i; j <= n; j++){
-                p = new Jogo.Piece(i,j);
+                p = new Piece(i,j);
                 thisSet.add(p);
             }
         }
@@ -195,7 +195,7 @@ public class RunGame {
             endTurnByTie(player);
 
         }
-        System.out.printf("É A VEZ DE %s!\n", currentPlayer.Description());
+        System.out.printf("É a vez de %s!\n", currentPlayer.Description());
         t.ViewTable();
         System.out.println("Peças na mão: ");
         currentPlayer.showPieces();
@@ -210,7 +210,7 @@ public class RunGame {
                         System.exit(0);
                     case "Z": checkPontucao();
                         break;
-                    case "M":  System.out.printf("É A VEZ DE %s!\n", currentPlayer.Description());
+                    case "M":  System.out.printf("É a vez de %s!\n", currentPlayer.Description());
                         t.ViewTable();
                         currentPlayer.showPieces();
                         break;
@@ -259,7 +259,7 @@ public class RunGame {
                             System.out.printf("A peça de número %d não pode ser jogada. Tente outra opção ou pule a rodada\n", optNum);
                             break;
                         }
-                        Jogo.Piece currentPiece = currentPlayer.getPiece(pieceIndex);
+                        Piece currentPiece = currentPlayer.getPiece(pieceIndex);
                         if(UsablePiece(currentPiece)){
                             makeMove(currentPiece);
                             currentPlayer.throwPiece(pieceIndex);
@@ -282,7 +282,7 @@ public class RunGame {
         }
         else{//NÃO HÁ PEÇAS A JOGAR -> PULA OU PROPOE FIM DE JOGO
             while (choosingOpt){
-                System.out.println("Aparentemente, você não tem jogadas válidas... Você pode pular a sua rodada, ou propor o fim do jogo. Propor o fim do jogo está sujeito à aceitação do pedido pelo outro jogador, e pulará a sua rodada.");
+                System.out.println("Aparentemente, você não tem jogadas válidas... Você pode pular a sua rodada, ou propor o fim do  Propor o fim do jogo está sujeito à aceitação do pedido pelo outro jogador, e pulará a sua rodada.");
                 System.out.println("M : Mostrar Mesa | S : Salvar Jogo | P : Pular | Q: Encerrar");
                 ans = in.next();
                 ans = ans.toUpperCase();
@@ -388,7 +388,7 @@ public class RunGame {
     }
 
     //VERIFICA SE A JOGADA É VÁLIDA PARA EVITAR ERROS NAS OPÇÕES
-    private boolean jogadaInvalida(Jogo.Player p, int n) { // EXEMPLO SE A MÃO TEM 3 PEÇAS E PEDE A PEÇA 4
+    private boolean jogadaInvalida(Player p, int n) { // EXEMPLO SE A MÃO TEM 3 PEÇAS E PEDE A PEÇA 4
         int handSize = p.CountPieces();
 
         if (handSize < n){
@@ -402,7 +402,7 @@ public class RunGame {
         //VERIFICA PEÇAS DO JOGADOR ATIVO
         Player currentPlayer = player.get(0);
         if (currentPlayer.emptyHand()){
-            System.out.println("RODADA ENCERRADA\nPontuação Atualizada:");
+            System.out.println("Rodada encerrada...\nPontuação Atualizada:");
             for (Player pl:player
                  ) {
                 int points = checkLooserPoints(pl);
@@ -452,9 +452,9 @@ public class RunGame {
 
     //SE RETORNAR FALSO NÃO HÁ PEÇAS A INSERIR...
     private boolean hasValidPiece(Player h){
-        ArrayList<Jogo.Piece> currentHand = new ArrayList<>();
+        ArrayList<Piece> currentHand = new ArrayList<>();
         currentHand = h.ReturnHand();
-        for (Jogo.Piece p: currentHand
+        for (Piece p: currentHand
              ) {
             if(checkOptions(p)) return true;
 

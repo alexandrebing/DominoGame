@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Player {
 
-    private ArrayList<Jogo.Piece> myHand = new ArrayList<>();
+    private ArrayList<Piece> myHand = new ArrayList<>();
     private String name;
     private int points;
 
@@ -22,7 +22,7 @@ public class Player {
     }
 
     //CONSTRUÇÃO JOGADOR MAIS SET DE PEÇAS
-    public Player(ArrayList<Jogo.Piece> p1Hand, String n) {
+    public Player(ArrayList<Piece> p1Hand, String n) {
         name = n;
         myHand = p1Hand;
         points = 0;
@@ -38,7 +38,7 @@ public class Player {
     }
 
     //RETORNA A MÃO DO JOGADOR
-    public ArrayList<Jogo.Piece> ReturnHand(){
+    public ArrayList<Piece> ReturnHand(){
         return myHand;
 
     }
@@ -59,7 +59,7 @@ public class Player {
     public void showPieces() {
         int n = 1;
         System.out.println("*****MINHA MÃO*****");
-        for (Jogo.Piece p: myHand) {
+        for (Piece p: myHand) {
             System.out.printf("%d - | %d | %d |\n", n, p.sideA, p.sideB );
             n++;
         }
@@ -71,7 +71,7 @@ public class Player {
     }
 
     //RETORNA A PEÇA EM DETERMINADO INDICE DO ARRAYLIST
-    public Jogo.Piece getPiece(int pieceN) {
+    public Piece getPiece(int pieceN) {
         return myHand.get(pieceN);
     }
 

@@ -4,11 +4,11 @@ import java.util.ArrayList;
 
 public class Table {
 
-    private ArrayList<Jogo.Piece> piecesInTable = new ArrayList<>();
+    private ArrayList<Piece> piecesInTable = new ArrayList<>();
 
     public void ViewTable() {
         System.out.println("**************MESA DE JOGO*****************");
-        for (Jogo.Piece p : piecesInTable
+        for (Piece p : piecesInTable
                 ) {
             System.out.printf("| %d | %d | ;", p.sideA, p.sideB);
         }
@@ -16,16 +16,16 @@ public class Table {
         System.out.println("*******************************");
     }
 
-    public void addLeft(Jogo.Piece p){
-        Jogo.Piece o = piecesInTable.get(0);
+    public void addLeft(Piece p){
+        Piece o = piecesInTable.get(0);
         if (o.sideA != p.sideB){
             p.Flip();
         }
         piecesInTable.add(0, p);
     }
 
-    public void addRight(Jogo.Piece p){
-        Jogo.Piece o = piecesInTable.get(piecesInTable.size()-1);
+    public void addRight(Piece p){
+        Piece o = piecesInTable.get(piecesInTable.size()-1);
         if (o.sideB != p.sideA){
             p.Flip();
         }
@@ -33,12 +33,12 @@ public class Table {
     }
 
     public int ConsultLeft(){
-        Jogo.Piece p = piecesInTable.get(0);
+        Piece p = piecesInTable.get(0);
         return p.sideA;
     }
 
     public int ConsultRight(){
-        Jogo.Piece p = piecesInTable.get(piecesInTable.size()-1);
+        Piece p = piecesInTable.get(piecesInTable.size()-1);
         return p.sideB;
     }
 

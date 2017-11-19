@@ -7,7 +7,7 @@ public class Main {
 
     public static void main(String[] args) throws FileNotFoundException {
 
-        RunGame game = new Jogo.RunGame();
+        RunGame game = new RunGame();
         while(true) {
             System.out.println("1 - Novo Jogo | 2 - Carregar Jogo | 3 - Encerrar");
             Scanner in = new Scanner(System.in);
