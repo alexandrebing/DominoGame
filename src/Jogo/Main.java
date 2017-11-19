@@ -14,10 +14,10 @@ public class Main {
             String a = in.nextLine();
             switch (a) {
                 case "1":
-                    game.RunGame();
+                    game.setGame();
                     break;
                 case "2":
-                    game.LoadGame();
+                    //game.LoadGame();
                     break;
                 case "3":
                     System.exit(0);
