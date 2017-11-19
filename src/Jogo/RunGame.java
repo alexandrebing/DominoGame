@@ -3,6 +3,7 @@ package Jogo;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.lang.management.PlatformLoggingMXBean;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
@@ -16,17 +17,18 @@ public class RunGame {
 
     Jogo.Table t = new Jogo.Table();
     Jogo.Piece p;
-    int gamePieces = 3;
+    int gamePieces;
     int totalPoints = 20;
     int jump = 0;
     int numOfPlayers;
 
     public void setGame() throws FileNotFoundException {
         //jogo para 2 jogadores
-        System.out.println("1 - Jogo para 2 jogadores | 2 - Jogo para 4 jogadores | 3 - Jogo contra IA");
+        System.out.println("1 - Jogo para 2 jogadores | 2 - Jogo para 4 jogadores ");
         String ans = in.nextLine();
         switch (ans){
             case "1":
+                gamePieces = 3;
                 RunGame(2);
                 break;
             case "2":
@@ -73,7 +75,7 @@ public class RunGame {
     }
 
     //METODO PARA INICIALIZAR RODADA
-    private void NewTurn() throws FileNotFoundException {
+    private void NewTurn(){
         for (Player p: player
              ) {
             if(p.getPoints() >= totalPoints)
@@ -133,7 +135,11 @@ public class RunGame {
             player.get(3).NewHand(p4Hand);
         }
 
-        firstPlay();
+        try {
+            firstPlay();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -183,9 +189,9 @@ public class RunGame {
         boolean choosingOpt = true;
         String ans;
         int countPieces = currentPlayer.CountPieces();
-        jump = 0;
         int jumpLimit = player.size();
         if(jump == jumpLimit){
+            jump = 0;
             endTurnByTie(player);
 
         }
@@ -277,7 +283,7 @@ public class RunGame {
         else{//NÃO HÁ PEÇAS A JOGAR -> PULA OU PROPOE FIM DE JOGO
             while (choosingOpt){
                 System.out.println("Aparentemente, você não tem jogadas válidas... Você pode pular a sua rodada, ou propor o fim do jogo. Propor o fim do jogo está sujeito à aceitação do pedido pelo outro jogador, e pulará a sua rodada.");
-                System.out.println("M : Mostrar Mesa | S : Salvar Jogo | P : Pular | F: Propor o fim do jogo | Q: Encerrar");
+                System.out.println("M : Mostrar Mesa | S : Salvar Jogo | P : Pular | Q: Encerrar");
                 ans = in.next();
                 ans = ans.toUpperCase();
                 switch (ans){
@@ -334,7 +340,7 @@ public class RunGame {
     }
 
     //METODO QUE VAI PEGAR A PEÇA E VER ONDE É POSSÍVEL JOGAR NA MESA
-    private void makeMove(Jogo.Piece pieceN) {
+    private void makeMove(Piece pieceN) {
         if((pieceN.sideA == t.ConsultLeft() || pieceN.sideB == t.ConsultLeft()) && (pieceN.sideA == t.ConsultRight() || pieceN.sideB == t.ConsultRight())){
             ChooseYourDestiny(pieceN);
         }
@@ -352,25 +358,32 @@ public class RunGame {
     }
 
     //SE FOR POSSÍVEL JOGAR EM AMBAS AS EXTREMIDADES, TEMOS ESSAS OPÇÕES
-    private void ChooseYourDestiny(Jogo.Piece pieceN) {//QUANDO POSSO INSERIR A PEÇA TANTO À ESQUERDA, QUANTO À DIREITA.
-        System.out.println("M - Consultar Mesa | L - Inserir à esquerda | R - Inserir à direita");
-        String option = in.next();
-        option = option.toUpperCase();
-        switch (option){
-            case "M": t.ViewTable();
-            ChooseYourDestiny(pieceN);
-            break;
-            case "L": {
-                t.addLeft(pieceN);
-                break;
+    private void ChooseYourDestiny(Piece pieceN) {//QUANDO POSSO INSERIR A PEÇA TANTO À ESQUERDA, QUANTO À DIREITA.
+        if(t.ConsultLeft() == t.ConsultRight()){
+            t.addRight(pieceN);
+        }
+
+        else {
+            System.out.println("M - Consultar Mesa | L - Inserir à esquerda | R - Inserir à direita");
+            String option = in.next();
+            option = option.toUpperCase();
+            switch (option) {
+                case "M":
+                    t.ViewTable();
+                    ChooseYourDestiny(pieceN);
+                    break;
+                case "L": {
+                    t.addLeft(pieceN);
+                    break;
+                }
+                case "R": {
+                    t.addRight(pieceN);
+                    break;
+                }
+                default:
+                    System.out.println("Opção inválida, use M, L ou R conforme a opção desejada.");
+                    ChooseYourDestiny(pieceN);
             }
-            case "R": {
-                t.addRight(pieceN);
-                break;
-            }
-            default:
-                System.out.println("Opção inválida, use C, L ou R conforme a opção desejada.");
-                ChooseYourDestiny(pieceN);
         }
     }
 
@@ -385,7 +398,7 @@ public class RunGame {
     }
 
     //VERIFICA SE A RODADA ACABOU APÓS CADA PEÇA JOGADA POR UM JOGADOR
-    private void CheckEndTurn() throws FileNotFoundException {
+    private void CheckEndTurn() {
         //VERIFICA PEÇAS DO JOGADOR ATIVO
         Player currentPlayer = player.get(0);
         if (currentPlayer.emptyHand()){
@@ -397,12 +410,26 @@ public class RunGame {
                 System.out.printf(" %s: %d pontos na rodada (total %d)\n", pl.Description(), points, pl.getPoints());
 
             }
+
+            if (numOfPlayers == 4){
+                int d1Points;
+                int d2Points;
+                System.out.println("Pontuação parcial das duplas:");
+                d1Points = player.get(0).getPoints() + player.get(2).getPoints();
+                System.out.printf("***Dupla %s e %s: %d pontos\n", player.get(0).Description(), player.get(2).Description(), d1Points);
+                d2Points = player.get(1).getPoints() + player.get(3).getPoints();
+                System.out.printf("***Dupla %s e %s: %d pontos\n", player.get(1).Description(), player.get(3).Description(), d2Points);
+
+            }
+
             t.ViewTable();
+            //POR QUE ESTÁ PULANDO???
             NewTurn();
-            //System.exit(0);
         }
-        player.remove(0);
-        player.add(currentPlayer);
+        else {
+            player.remove(0);
+            player.add(currentPlayer);
+        }
     }
 
     //CONTA QUANTOS PONTOS O PERDEDOR SOMOU
@@ -459,39 +486,46 @@ public class RunGame {
     //METODO PARA ENCERRAR UM JOGO TRAVADO, QUANDO NÃO É POSSÍVEL INSERIR NOVAS PEÇAS
     private void endTurnByTie(ArrayList<Player> allPlayers) throws FileNotFoundException {
 
-        int points[] = new int[allPlayers.size()];
-        int n = 0;
+        int numOfPlayers = player.size();
+
+        System.out.println("Pontuação atualizada:");
         for (Player p: allPlayers
              ) {
-            points[n] = 0;
+            int points = 0;
             ArrayList<Piece> hand = p.ReturnHand();
             for (Piece piece: hand
                  ) {
-                points[n] = points[n] + piece.sideA + piece.sideB;
+                points = points + piece.sideA + piece.sideB;
             }
-            p.UpdatePoints(points[n]);
-            n++;
+            p.UpdatePoints(points);
+            System.out.printf(" %s: %d pontos na rodada, %d pontos no total\n", p.Description(), points,p.getPoints());
         }
 
-        System.out.println("Pontuação atualizada:");
-        n = 0;
-        for (Player p: allPlayers
-             ) {
-            System.out.printf(" %s: %d pontos na rodada, %d pontos no total\n", p.Description(), points[n],p.getPoints());
+        if (numOfPlayers == 4){
+            int d1Points;
+            int d2Points;
+            System.out.println("Pontuação parcial das duplas:");
+            d1Points = player.get(0).getPoints() + player.get(2).getPoints();
+            System.out.printf("***Dupla %s e %s: %d pontos\n", player.get(0).Description(), player.get(2).Description(), d1Points);
+            d2Points = player.get(1).getPoints() + player.get(3).getPoints();
+            System.out.printf("***Dupla %s e %s: %d pontos\n", player.get(1).Description(), player.get(3).Description(), d2Points);
+
         }
+
 
         NewTurn();
     }
 
 
     //METODO PARA CARREGAR JOGO SALVO
-    /*
     public void LoadGame() throws FileNotFoundException {
         System.out.printf("Escolha o arquivo que você quer carregar:\n * 1: Jogo Salvo 1\n * 2: Jogo Salvo 2\n * 3: Jogo Salvo 3\n");
         int n = in.nextInt();
         String gameSave = "";
         String section [];
         Piece p;
+        int rL;
+        int cL = 0;
         boolean choosing = true;
         while(choosing){
             switch (n) {
@@ -514,22 +548,60 @@ public class RunGame {
         }
         Scanner load = new Scanner(new File(gameSave));
 
-        String line [] = new String [7];
+        String firstLine = load.nextLine();
+        rL = (Integer.parseInt(firstLine ) * 3) + 2;
+        numOfPlayers = Integer.parseInt(firstLine);
+
+        String line [] = new String [rL];
         int i = 0;
 
-        while (load.hasNextLine()){
-            line [i] = load.nextLine();
-            i ++;
+        while (load.hasNextLine()) {
+            line[i] = load.nextLine();
+            i++;
         }
 
-        section = line[0].split(";");
+        section = line[cL].split(";");
         for (int j = 0; j < section.length; j = j+2){
             int pa = Integer.parseInt(section[j]);
             int pb = Integer.parseInt(section[j+1]);
             p = new Piece(pa,pb);
             t.add(p);
         }
+        cL++;
 
+        //Dados de cada jogador
+        while (cL < rL-1){
+            Player setPlayer = new Player();
+            setPlayer.setName(line[cL]);
+            cL++;
+            section = line[cL].split(";");
+            for (int j = 0; j < section.length; j = j+2){
+                int pa = Integer.parseInt(section[j]);
+                int pb = Integer.parseInt(section[j+1]);
+                p = new Piece(pa,pb);
+                setPlayer.addPiece(p);
+            }
+            cL++;
+            setPlayer.UpdatePoints(Integer.parseInt(line[cL]));
+            player.add(setPlayer);
+            cL++;
+        }
+        switch (numOfPlayers){
+            case 2:
+                gamePieces = 3;
+                break;
+            case 4:
+                gamePieces = 6;
+                break;
+            default:
+                gamePieces = 6;
+        }
+
+        notFirstPlay(player);
+
+
+
+        /*
         player1.setName(line[1]);
 
         section = line[2].split(";");
@@ -560,66 +632,43 @@ public class RunGame {
         //SEGUNDA LINHA DO ARQUIVO PARA CONSTRUIR A MÃO DO PLAYER1
         //TERCEIRA LINHA DO PARA CONSTRUIR A MÃO DO PLAYER2
         // QUARTA LINHA DO ARQUIVO PARA DETERMINAR DE QUEM É A VEZ
+        */
 
     }
-    */
 
     //METODO PARA SALVAR JOGO
     public void SaveGame(String fileNum) throws FileNotFoundException {
 
-
-
-
-        /*int numOfPlayers = player.size();
+        String res = "";
         ArrayList<Piece> listOfPieces;
-        //int gameTable [] = new int [t.countPieces()];
-        String gameTable = "";
-
-        //int p1Hand [] = new int [currentPlayer.CountPieces()];
-        String res;
-
-        listOfPieces = t.getPiecesInTable();
-
+        //LINHA 1 NUMERO DE JOGADORES
+        int plNum = player.size();
+        String line1 = Integer.toString(plNum) + "\n";
+        //LINHA 2 PEÇAS DA MESA
         //PEGAR DADOS DA MESA
+        String gameTable = "";
+        listOfPieces = t.getPiecesInTable();
         for (Piece p : listOfPieces
-             ) {
+                ) {
             gameTable = gameTable + p.sideA + ";" + p.sideB + ";";
         }
         gameTable = gameTable + "\n";
-
-        //Pegando mao do jogador que salvou
-        String currentPlayerName = currentPlayer.Description() + "\n";
-        String currentPlayerHand = "";
-        String currentPlayerPoints = Integer.toString(currentPlayer.getPoints()) + "\n";
-        listOfPieces = currentPlayer.ReturnHand();
-        for (Piece p : listOfPieces
+        res = res + line1 + gameTable;
+        //DADOS DE CADA JOGADOR
+        String playerName, playerHand, playerPoints;
+        for (Player p: player
                 ) {
-            currentPlayerHand = currentPlayerHand + p.sideA + ";" + p.sideB + ";";
-        }
-        currentPlayerHand = currentPlayerHand + "\n";
-
-        //DADOS DOS DEMAIS JOGADORES
-
-        res = gameTable + currentPlayerName + currentPlayerHand + currentPlayerPoints;
-        int n = 0;
-        String [] otherPlayersNames = new String [otherPlayers.size()];
-        String [] otherPlayersHand = new String [otherPlayers.size()];
-        String [] otherPlayersPoints = new String [otherPlayers.size()];
-        for (Player p: otherPlayers
-             ) {
-            otherPlayersNames[n] = p.Description() + "\n";
-            otherPlayersPoints[n] = Integer.toString(p.getPoints());
-            otherPlayersHand[n] = "";
+            playerName = p.Description() + "\n";
+            playerPoints = Integer.toString(p.getPoints())+ "\n";
+            playerHand = "";
             listOfPieces = p.ReturnHand();
             for (Piece piece: listOfPieces
-                 ) {
-                otherPlayersHand[n] = otherPlayersHand[n] + piece.sideA + ";" + piece.sideB;
+                    ) {
+                playerHand = playerHand + piece.sideA + ";" + piece.sideB + ";";
             }
-            otherPlayersHand[n] = otherPlayersHand[n] + "\n";
-            res = res + otherPlayersNames[n] + otherPlayersHand[n] + otherPlayersPoints[n];
+            playerHand = playerHand + "\n";
+            res = res + playerName + playerHand + playerPoints;
         }
-
-        //System.out.println(res);
 
         //Salva o arquivo num arquivo txt
         String file = "save" + fileNum + ".txt";
@@ -629,7 +678,7 @@ public class RunGame {
         out.println(res);
 
         out.close();
-        */
+
     }
 
 
@@ -641,6 +690,29 @@ public class RunGame {
              ) {
             System.out.printf("%s: %d pontos\n",pl.Description(), pl.getPoints());
         }
+
+        if (numOfPlayers == 4){
+            int d1Points;
+            int d2Points;
+            System.out.println("Pontuação parcial das duplas:");
+            d1Points = player.get(0).getPoints() + player.get(2).getPoints();
+            System.out.printf("***Dupla %s e %s: %d pontos\n", player.get(0).Description(), player.get(2).Description(), d1Points);
+            d2Points = player.get(1).getPoints() + player.get(3).getPoints();
+            System.out.printf("***Dupla %s e %s: %d pontos\n", player.get(1).Description(), player.get(3).Description(), d2Points);
+
+            if (d1Points > d2Points){
+                System.out.printf("A dupla %s e %s é a vencedora\n", player.get(0).Description(), player.get(2).Description(), d1Points);
+            }
+            if (d2Points > d1Points){
+                System.out.printf("A dupla %s e %s é a vencedora\n", player.get(1).Description(), player.get(3).Description(), d1Points);
+            }
+
+            if (d1Points == d2Points){
+                System.out.printf("As duplas empataram!\n", player.get(0).Description(), player.get(2).Description(), d1Points);
+            }
+
+        }
+
         System.exit(0);
     }
 

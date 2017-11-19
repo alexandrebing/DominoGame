@@ -17,7 +17,7 @@ public class Main {
                     game.setGame();
                     break;
                 case "2":
-                    //game.LoadGame();
+                    game.LoadGame();
                     break;
                 case "3":
                     System.exit(0);
